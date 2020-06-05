@@ -12,6 +12,13 @@ export async function activate(context: ExtensionContext): Promise<void> {
   context.subscriptions.push(
     languages.registerCompletionItemProvider('bootstrap-classname', 'bscn', filetypes, {
       async provideCompletionItems(document, position) {
+        const prefixChar = document.getText({
+          start: {
+            line: position.line,
+            character: position.character - 1,
+          },
+          end: position,
+        });
         if (!classNames) {
           await new Promise(resolve => {
             readFile(join(context.extensionPath, 'classNames.json'), { encoding: 'utf-8' }, (err, data) => {
@@ -43,7 +50,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
         }
         const existNames = (m[2] || '').split(' ');
         return classNames
-          .filter(cn => existNames.indexOf(cn) === -1)
+          .filter(cn => existNames.indexOf(cn) === -1 && cn.indexOf(prefixChar) !== -1)
           .map<CompletionItem>(cn => {
             return {
               label: cn,

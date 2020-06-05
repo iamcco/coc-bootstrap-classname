@@ -9,7 +9,11 @@ const classNames = new Set();
 
 function resolveClassNames(data) {
   const lines = data.split(/\r\n|\n/);
-  lines.forEach(line => {
+  lines.slice(6).forEach(line => {
+    line = line.trim();
+    if ((!line.endsWith('{') && !line.endsWith(',')) || line.startsWith('@') || line.endsWith(';')) {
+      return;
+    }
     const list = line.match(classNamePattern);
     if (list) {
       Array.from(list).forEach(cn => {
